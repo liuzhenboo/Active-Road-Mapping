@@ -1,0 +1,56 @@
+
+<launch>  
+
+<!-- /d435i/depth/color/points /cam0/image_raw  /imu0-->
+
+  <!-- ORBSLAM3 -->
+	<node pkg="ORB_SLAM3" type="Mono_Inertial" name="Mono_Inertial" args ="/home/lzb/ros_ws/src/ORB_SLAM3-0.3-beta/Vocabulary/ORBvoc.txt /home/lzb/ros_ws/src/ORB_SLAM3-0.3-beta/Examples/Monocular-Inertial/EuRoC.yaml" output="screen" >
+    	     <remap from="/camera/image_raw" to="/cam0/image_raw"/>
+		    <remap from="/camera/right/image_raw" to="/cam1/image_raw"/>
+			    	     <remap from="/imu" to="/imu0"/>
+		</node>
+
+  <!-- Mapping Road -->
+		<node pkg="mav_find_road" type="mav_find_roads" name="mav_find_roads" output="screen">
+    		<remap from="/camera/depth/color/points" to="/d435i/depth/color/points"/>
+
+			<param name="pointcloud_xu" type="double" value="5.0"/>		
+			<param name="pointcloud_xd" type="double" value="0.1"/>		
+			<param name="pointcloud_yu" type="double" value="3.0"/>		
+			<param name="pointcloud_yd" type="double" value="-3.0"/>		
+			<param name="pointcloud_zu" type="double" value="1.0"/>		
+			<param name="pointcloud_zd" type="double" value="-2.1"/>		
+
+			<param name="wait_for_transform" type="bool" value="true"/>
+			<param name="frame_id" type="string" value="d435i_link"/>		
+			<param name="map_frame_id" type="string" value="t265_odom_frame"/>
+
+			<param name="mapFrameProjection" type="bool" value="false"/>
+			<param name="projMapFrame" type="bool" value="false"/>
+
+      		<param name="preVoxelFiltering" type="bool" value="true"/>		
+			<param name="cellSize" type="double" value="0.1"/>		
+			<param name="footprintLength" type="double" value="0.0"/>		
+			<param name="footprintWidth" type="double" value="0.0"/>		
+			<param name="footprintHeight" type="double" value="0.0"/>		
+			<param name="minGroundHeight" type="double" value="-5.0"/>		
+			<param name="maxGroundHeight" type="double" value="5.0"/>		
+
+			<param name="maxObstacleHeight" type="double" value="0.5"/>		
+			<param name="normalsSegmentation" type="bool" value="true"/>		
+			<param name="groundIsObstacle" type="bool" value="false"/>		
+			<param name="maxGroundAngle" type="double" value="0.8"/>		
+			<param name="clusterRadius" type="double" value="0.1"/>		
+			<param name="flatObstaclesDetected" type="bool" value="true"/>		
+			<param name="minClusterSize" type="int" value="50"/>		
+			<param name="noiseFilteringRadius" type="double" value="0.0"/>		
+			<param name="noiseFilteringMinNeighbors" type="int" value="5"/>		
+			<param name="normalKSearch" type="int" value="50"/>		
+			<param name="maxGroundHeight" type="double" value="-0.5"/>		
+			
+			<param name="min_region" type="double" value="1.0"/>		
+			<param name="localmap_size" type="int" value="3000"/>		
+  		</node>
+	<arg name="rviz_cfg"                default="$(find mav_find_road)/launch/mav_find_road.rviz" />
+	  <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>
+</launch>

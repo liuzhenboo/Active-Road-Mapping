@@ -1,0 +1,66 @@
+
+<launch>  
+  <!--Astar server-->
+<!-- 
+  <include file="$(find rtabmap_ros)/mylaunch/stereo_mapping.launch">
+</include> -->
+
+    <!-- <node name="tf2odom" pkg="ds_utils" type="tf2odom" output="screen"/> -->
+  <!-- Obstacles_detection -->
+		<node pkg="mav_find_road" type="mav_find_roads" name="mav_find_roads" output="screen">
+    		<remap from="/camera/depth/color/points" to="/zed2/zed_node/point_cloud/cloud_registered"/>
+			<!-- <remap from="obstacles" to="/planner_cloud"/> -->
+
+
+			<param name="pointcloud_x" type="double" value="12.0"/>		
+			<param name="pointcloud_y" type="double" value="2.0"/>		
+			<param name="pointcloud_zu" type="double" value="1.0"/>		
+			<param name="pointcloud_zd" type="double" value="2.0"/>		
+
+			<param name="frame_id" type="string" value="base_link"/>		
+			<param name="map_frame_id" type="string" value="map"/>
+			<param name="wait_for_transform" type="bool" value="true"/>
+			<param name="mapFrameProjection" type="bool" value="false"/>
+
+      		<param name="preVoxelFiltering" type="bool" value="true"/>		
+			<param name="cellSize" type="double" value="0.1"/>		
+			<param name="footprintLength" type="double" value="0.0"/>		
+			<param name="footprintWidth" type="double" value="0.0"/>		
+			<param name="footprintHeight" type="double" value="0.0"/>		
+			<param name="minGroundHeight" type="double" value="-2.0"/>		
+			<param name="maxObstacleHeight" type="double" value="1.0"/>		
+			<param name="normalsSegmentation" type="bool" value="true"/>		
+			<param name="groundIsObstacle" type="bool" value="false"/>		
+			<param name="maxGroundAngle" type="double" value="0.8"/>		
+			<param name="clusterRadius" type="double" value="0.1"/>		
+			<param name="flatObstaclesDetected" type="bool" value="true"/>		
+			<param name="minClusterSize" type="int" value="50"/>		
+			<param name="noiseFilteringRadius" type="double" value="0.0"/>		
+			<param name="noiseFilteringMinNeighbors" type="int" value="5"/>		
+			<param name="normalKSearch" type="int" value="50"/>		
+			<param name="maxGroundHeight" type="double" value="-0.5"/>		
+			
+			<param name="min_region" type="double" value="1.8"/>		
+
+  		</node>
+  <arg name="rviz_cfg"                default="$(find mav_find_road)/launch/mav_find_road.rviz" />
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>
+
+    <node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
+    <!-- resolution in meters per pixel -->
+    <param name="resolution" value="0.3" />
+    <!-- name of the fixed frame, needs to be "/map" for SLAM -->
+    <param name="frame_id" type="string" value="/map" />
+    <!-- max range / depth resolution of the kinect in meter -->
+    <param name="sensor_model/max_range" value="100.0" />
+    <param name="latch" value="true" />
+    <!-- max/min height for occupancy map, should be in meters -->
+    <param name="pointcloud_max_z" value="1000" />
+    <param name="pointcloud_min_z" value="-10" />
+    <!-- topic from where pointcloud2 messages are subscribed -->
+    <remap from="/cloud_in" to="/mav_find_roads/ground" />
+	<!-- <remap from="/cloud_in" to="/mav_find_roads/obstacles" /> -->
+
+  </node>
+
+</launch>

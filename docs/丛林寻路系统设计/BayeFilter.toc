@@ -1,0 +1,16 @@
+\contentsline {section}{\numberline {1}类的设计}{2}
+\contentsline {subsection}{\numberline {1.1}姿态类}{2}
+\contentsline {subsection}{\numberline {1.2}栅格类}{4}
+\contentsline {subsection}{\numberline {1.3}地图类}{4}
+\contentsline {subsection}{\numberline {1.4}点云分割类}{6}
+\contentsline {subsection}{\numberline {1.5}系统类}{8}
+\contentsline {subsection}{\numberline {1.6}工具函数}{9}
+\contentsline {section}{\numberline {2}系统流程}{10}
+\contentsline {subsection}{\numberline {2.1}坐标系}{10}
+\contentsline {subsection}{\numberline {2.2}回调函数}{11}
+\contentsline {subsection}{\numberline {2.3}分割函数}{12}
+\contentsline {subsection}{\numberline {2.4}恢复点云坐标}{13}
+\contentsline {subsection}{\numberline {2.5}基于道路点云与障碍物点云的环境重建}{13}
+\contentsline {section}{\numberline {3}项目展示}{14}
+\contentsline {subsection}{\numberline {3.1}Github代码地址}{14}
+\contentsline {subsection}{\numberline {3.2}实际效果}{14}
