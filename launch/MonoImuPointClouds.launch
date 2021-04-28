@@ -3,9 +3,18 @@
 
 <!-- /d435i/depth/color/points /cam0/image_raw  /imu0-->
 
-  <!-- ORBSLAM3 -->
-		<node pkg="active_road_mapping" type="mono_Inertial" name="mono_Inertial" args ="/home/lzb/ros_ws/src/Active-Road-Mapping/SDK/ORB_SLAM3-0.3-beta_SDK/Vocabulary/ORBvoc.txt /home/lzb/ros_ws/src/Active-Road-Mapping/SDK/ORB_SLAM3-0.3-beta_SDK/Examples/Monocular-Inertial/EuRoC.yaml" output="screen">
+  <!-- ORBSLAM3 mono -->
+		<!-- <node pkg="active_road_mapping" type="mono_Inertial" name="mono_Inertial" args ="/home/lzb/ros_ws/src/Active-Road-Mapping/SDK/ORB_SLAM3-0.3-beta_SDK/Vocabulary/ORBvoc.txt /home/lzb/ros_ws/src/Active-Road-Mapping/SDK/ORB_SLAM3-0.3-beta_SDK/Examples/Monocular-Inertial/EuRoC.yaml" output="screen">
     	     <remap from="/camera/image_raw" to="/cam0/image_raw"/>
+		    <remap from="/camera/right/image_raw" to="/cam1/image_raw"/>
+			    	     <remap from="/imu" to="/imu0"/>
+
+  		</node> -->
+		  
+		  <node pkg="active_road_mapping" type="stereo_Inertial" name="stereo_Inertial" args ="/home/lzb/ros_ws/src/Active-Road-Mapping/SDK/ORB_SLAM3-0.3-beta_SDK/Vocabulary/ORBvoc.txt /home/lzb/ros_ws/src/Active-Road-Mapping/SDK/ORB_SLAM3-0.3-beta_SDK/Examples/Stereo-Inertial/EuRoC.yaml true" output="screen">
+    	     <!-- <remap from="/camera/image_raw" to="/cam0/image_raw"/> -->
+			<remap from="/camera/left/image_raw" to="/cam0/image_raw"/>
+
 		    <remap from="/camera/right/image_raw" to="/cam1/image_raw"/>
 			    	     <remap from="/imu" to="/imu0"/>
 
@@ -15,6 +24,8 @@
 		<node pkg="active_road_mapping" type="road_mapping" name="road_mapping" output="screen">
     		<!-- <remap from="/camera/depth/color/points" to="/d435i/depth/color/points"/> -->
     		<remap from="/camera/depth/color/points" to="/Mono_Inertial/LocalaMap"/>
+			<remap from="/mono_Inertial/LocalaMap" to="/stereo_Inertial/LocalaMap"/>
+			<remap from="/mono_Inertial/orbslam3_Tcw" to="/stereo_Inertial/orbslam3_Tcw"/>
 
 			<param name="pointcloud_xu" type="double" value="5.0"/>		
 			<param name="pointcloud_xd" type="double" value="0.1"/>		

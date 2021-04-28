@@ -160,3 +160,11 @@ target_link_libraries(mono_Inertial
 ${LIBS}
 )
 
+add_executable(stereo_Inertial
+orbslam3_node/ros_stereo_inertial.cc
+)
+
+target_link_libraries(stereo_Inertial
+${LIBS}
+)
+

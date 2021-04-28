@@ -1585,6 +1585,19 @@ pcl_msgs_generate_messages_lisp/fast:
 .PHONY : pcl_msgs_generate_messages_lisp/fast
 
 #=============================================================================
+# Target rules for targets named stereo_Inertial
+
+# Build rule for target.
+stereo_Inertial: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 stereo_Inertial
+.PHONY : stereo_Inertial
+
+# fast build rule for target.
+stereo_Inertial/fast:
+	$(MAKE) -f CMakeFiles/stereo_Inertial.dir/build.make CMakeFiles/stereo_Inertial.dir/build
+.PHONY : stereo_Inertial/fast
+
+#=============================================================================
 # Target rules for targets named nav_msgs_generate_messages_lisp
 
 # Build rule for target.
@@ -1779,6 +1792,33 @@ orbslam3_node/ros_mono_inertial.s: orbslam3_node/ros_mono_inertial.cc.s
 orbslam3_node/ros_mono_inertial.cc.s:
 	$(MAKE) -f CMakeFiles/mono_Inertial.dir/build.make CMakeFiles/mono_Inertial.dir/orbslam3_node/ros_mono_inertial.cc.s
 .PHONY : orbslam3_node/ros_mono_inertial.cc.s
+
+orbslam3_node/ros_stereo_inertial.o: orbslam3_node/ros_stereo_inertial.cc.o
+
+.PHONY : orbslam3_node/ros_stereo_inertial.o
+
+# target to build an object file
+orbslam3_node/ros_stereo_inertial.cc.o:
+	$(MAKE) -f CMakeFiles/stereo_Inertial.dir/build.make CMakeFiles/stereo_Inertial.dir/orbslam3_node/ros_stereo_inertial.cc.o
+.PHONY : orbslam3_node/ros_stereo_inertial.cc.o
+
+orbslam3_node/ros_stereo_inertial.i: orbslam3_node/ros_stereo_inertial.cc.i
+
+.PHONY : orbslam3_node/ros_stereo_inertial.i
+
+# target to preprocess a source file
+orbslam3_node/ros_stereo_inertial.cc.i:
+	$(MAKE) -f CMakeFiles/stereo_Inertial.dir/build.make CMakeFiles/stereo_Inertial.dir/orbslam3_node/ros_stereo_inertial.cc.i
+.PHONY : orbslam3_node/ros_stereo_inertial.cc.i
+
+orbslam3_node/ros_stereo_inertial.s: orbslam3_node/ros_stereo_inertial.cc.s
+
+.PHONY : orbslam3_node/ros_stereo_inertial.s
+
+# target to generate assembly for a file
+orbslam3_node/ros_stereo_inertial.cc.s:
+	$(MAKE) -f CMakeFiles/stereo_Inertial.dir/build.make CMakeFiles/stereo_Inertial.dir/orbslam3_node/ros_stereo_inertial.cc.s
+.PHONY : orbslam3_node/ros_stereo_inertial.cc.s
 
 road_mapping/src/Attitude.o: road_mapping/src/Attitude.cpp.o
 
@@ -2118,6 +2158,7 @@ help:
 	@echo "... tf_generate_messages_cpp"
 	@echo "... actionlib_generate_messages_nodejs"
 	@echo "... pcl_msgs_generate_messages_lisp"
+	@echo "... stereo_Inertial"
 	@echo "... nav_msgs_generate_messages_lisp"
 	@echo "... pcl_msgs_generate_messages_nodejs"
 	@echo "... actionlib_generate_messages_eus"
@@ -2134,6 +2175,9 @@ help:
 	@echo "... orbslam3_node/ros_mono_inertial.o"
 	@echo "... orbslam3_node/ros_mono_inertial.i"
 	@echo "... orbslam3_node/ros_mono_inertial.s"
+	@echo "... orbslam3_node/ros_stereo_inertial.o"
+	@echo "... orbslam3_node/ros_stereo_inertial.i"
+	@echo "... orbslam3_node/ros_stereo_inertial.s"
 	@echo "... road_mapping/src/Attitude.o"
 	@echo "... road_mapping/src/Attitude.i"
 	@echo "... road_mapping/src/Attitude.s"

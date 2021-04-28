@@ -15,141 +15,168 @@
 * You should have received a copy of the GNU General Public License along with ORB-SLAM3.
 * If not, see <http://www.gnu.org/licenses/>.
 */
+#include <iostream>
+#include <algorithm>
+#include <fstream>
+#include <chrono>
+#include <vector>
+#include <queue>
+#include <thread>
+#include <mutex>
 
-#include<iostream>
-#include<algorithm>
-#include<fstream>
-#include<chrono>
-#include<vector>
-#include<queue>
-#include<thread>
-#include<mutex>
+#include <ros/ros.h>
+#include <tf/transform_broadcaster.h>
+#include <cv_bridge/cv_bridge.h>
+#include <sensor_msgs/Imu.h>
 
-#include<ros/ros.h>
-#include<cv_bridge/cv_bridge.h>
-#include<sensor_msgs/Imu.h>
+#include <opencv2/core/core.hpp>
 
-#include<opencv2/core/core.hpp>
+#include "../../../include/System.h"
+#include "../include/ImuTypes.h"
 
-#include"../../../include/System.h"
-#include"../include/ImuTypes.h"
+#include <sensor_msgs/PointCloud2.h>
+#include <nav_msgs/Odometry.h>
+
+// pcl
+#include <pcl/common/common.h>
+#include <pcl/common/centroid.h>
+#include <pcl/common/io.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl/filters/filter.h>
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/filters/frustum_culling.h>
+#include <pcl/filters/random_sample.h>
+#include <pcl/filters/passthrough.h>
+#include <pcl/filters/crop_box.h>
+
+#include <pcl/features/normal_3d_omp.h>
+
+#include <pcl/search/kdtree.h>
+#include <pcl/common/common.h>
+#include <pcl/segmentation/extract_clusters.h>
+#include <pcl/segmentation/sac_segmentation.h>
+
+#include <active_road_mapping/Transform_matrix.h>
 
 using namespace std;
 
 class ImuGrabber
 {
 public:
-    ImuGrabber(){};
-    void GrabImu(const sensor_msgs::ImuConstPtr &imu_msg);
+  ImuGrabber(){};
+  void GrabImu(const sensor_msgs::ImuConstPtr &imu_msg);
 
-    queue<sensor_msgs::ImuConstPtr> imuBuf;
-    std::mutex mBufMutex;
+  queue<sensor_msgs::ImuConstPtr> imuBuf;
+  std::mutex mBufMutex;
 };
 
 class ImageGrabber
 {
 public:
-    ImageGrabber(ORB_SLAM3::System* pSLAM, ImuGrabber *pImuGb, const bool bRect, const bool bClahe): mpSLAM(pSLAM), mpImuGb(pImuGb), do_rectify(bRect), mbClahe(bClahe){}
+  ImageGrabber(ORB_SLAM3::System *pSLAM, ImuGrabber *pImuGb, const bool bRect, const bool bClahe) : mpSLAM(pSLAM), mpImuGb(pImuGb), do_rectify(bRect), mbClahe(bClahe) {}
 
-    void GrabImageLeft(const sensor_msgs::ImageConstPtr& msg);
-    void GrabImageRight(const sensor_msgs::ImageConstPtr& msg);
-    cv::Mat GetImage(const sensor_msgs::ImageConstPtr &img_msg);
-    void SyncWithImu();
+  void GrabImageLeft(const sensor_msgs::ImageConstPtr &msg);
+  void GrabImageRight(const sensor_msgs::ImageConstPtr &msg);
+  cv::Mat GetImage(const sensor_msgs::ImageConstPtr &img_msg);
+  void SyncWithImu();
 
-    queue<sensor_msgs::ImageConstPtr> imgLeftBuf, imgRightBuf;
-    std::mutex mBufMutexLeft,mBufMutexRight;
-   
-    ORB_SLAM3::System* mpSLAM;
-    ImuGrabber *mpImuGb;
+  queue<sensor_msgs::ImageConstPtr> imgLeftBuf, imgRightBuf;
+  std::mutex mBufMutexLeft, mBufMutexRight;
 
-    const bool do_rectify;
-    cv::Mat M1l,M2l,M1r,M2r;
+  ORB_SLAM3::System *mpSLAM;
+  ImuGrabber *mpImuGb;
 
-    const bool mbClahe;
-    cv::Ptr<cv::CLAHE> mClahe = cv::createCLAHE(3.0, cv::Size(8, 8));
+  const bool do_rectify;
+  cv::Mat M1l, M2l, M1r, M2r;
+
+  const bool mbClahe;
+  cv::Ptr<cv::CLAHE> mClahe = cv::createCLAHE(3.0, cv::Size(8, 8));
 };
-
-
-
+ros::Publisher LocalaMapPub_;
+ros::Publisher tranform_Tcw_pub;
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "Stereo_Inertial");
   ros::NodeHandle n("~");
   ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Info);
   bool bEqual = false;
-  if(argc < 4 || argc > 5)
+  if (argc < 4 || argc > 5)
   {
-    cerr << endl << "Usage: rosrun ORB_SLAM3 Stereo_Inertial path_to_vocabulary path_to_settings do_rectify [do_equalize]" << endl;
+    cerr << endl
+         << "Usage: rosrun ORB_SLAM3 Stereo_Inertial path_to_vocabulary path_to_settings do_rectify [do_equalize]" << endl;
     ros::shutdown();
     return 1;
   }
-
+  LocalaMapPub_ = n.advertise<sensor_msgs::PointCloud2>("LocalaMap", 10);
+  tranform_Tcw_pub = n.advertise<active_road_mapping::Transform_matrix>("orbslam3_Tcw", 50);
   std::string sbRect(argv[3]);
-  if(argc==5)
+  if (argc == 5)
   {
     std::string sbEqual(argv[4]);
-    if(sbEqual == "true")
+    if (sbEqual == "true")
       bEqual = true;
   }
 
   // Create SLAM system. It initializes all system threads and gets ready to process frames.
-  ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::IMU_STEREO,true);
+  ORB_SLAM3::System SLAM(argv[1], argv[2], ORB_SLAM3::System::IMU_STEREO, true);
 
   ImuGrabber imugb;
-  ImageGrabber igb(&SLAM,&imugb,sbRect == "true",bEqual);
-  
-    if(igb.do_rectify)
-    {      
-        // Load settings related to stereo calibration
-        cv::FileStorage fsSettings(argv[2], cv::FileStorage::READ);
-        if(!fsSettings.isOpened())
-        {
-            cerr << "ERROR: Wrong path to settings" << endl;
-            return -1;
-        }
+  ImageGrabber igb(&SLAM, &imugb, sbRect == "true", bEqual);
 
-        cv::Mat K_l, K_r, P_l, P_r, R_l, R_r, D_l, D_r;
-        fsSettings["LEFT.K"] >> K_l;
-        fsSettings["RIGHT.K"] >> K_r;
-
-        fsSettings["LEFT.P"] >> P_l;
-        fsSettings["RIGHT.P"] >> P_r;
-
-        fsSettings["LEFT.R"] >> R_l;
-        fsSettings["RIGHT.R"] >> R_r;
-
-        fsSettings["LEFT.D"] >> D_l;
-        fsSettings["RIGHT.D"] >> D_r;
-
-        int rows_l = fsSettings["LEFT.height"];
-        int cols_l = fsSettings["LEFT.width"];
-        int rows_r = fsSettings["RIGHT.height"];
-        int cols_r = fsSettings["RIGHT.width"];
-
-        if(K_l.empty() || K_r.empty() || P_l.empty() || P_r.empty() || R_l.empty() || R_r.empty() || D_l.empty() || D_r.empty() ||
-                rows_l==0 || rows_r==0 || cols_l==0 || cols_r==0)
-        {
-            cerr << "ERROR: Calibration parameters to rectify stereo are missing!" << endl;
-            return -1;
-        }
-
-        cv::initUndistortRectifyMap(K_l,D_l,R_l,P_l.rowRange(0,3).colRange(0,3),cv::Size(cols_l,rows_l),CV_32F,igb.M1l,igb.M2l);
-        cv::initUndistortRectifyMap(K_r,D_r,R_r,P_r.rowRange(0,3).colRange(0,3),cv::Size(cols_r,rows_r),CV_32F,igb.M1r,igb.M2r);
+  if (igb.do_rectify)
+  {
+    // Load settings related to stereo calibration
+    cv::FileStorage fsSettings(argv[2], cv::FileStorage::READ);
+    if (!fsSettings.isOpened())
+    {
+      cerr << "ERROR: Wrong path to settings" << endl;
+      return -1;
     }
 
-  // Maximum delay, 5 seconds
-  ros::Subscriber sub_imu = n.subscribe("/imu", 1000, &ImuGrabber::GrabImu, &imugb); 
-  ros::Subscriber sub_img_left = n.subscribe("/camera/left/image_raw", 100, &ImageGrabber::GrabImageLeft,&igb);
-  ros::Subscriber sub_img_right = n.subscribe("/camera/right/image_raw", 100, &ImageGrabber::GrabImageRight,&igb);
+    cv::Mat K_l, K_r, P_l, P_r, R_l, R_r, D_l, D_r;
+    fsSettings["LEFT.K"] >> K_l;
+    fsSettings["RIGHT.K"] >> K_r;
 
-  std::thread sync_thread(&ImageGrabber::SyncWithImu,&igb);
+    fsSettings["LEFT.P"] >> P_l;
+    fsSettings["RIGHT.P"] >> P_r;
+
+    fsSettings["LEFT.R"] >> R_l;
+    fsSettings["RIGHT.R"] >> R_r;
+
+    fsSettings["LEFT.D"] >> D_l;
+    fsSettings["RIGHT.D"] >> D_r;
+
+    int rows_l = fsSettings["LEFT.height"];
+    int cols_l = fsSettings["LEFT.width"];
+    int rows_r = fsSettings["RIGHT.height"];
+    int cols_r = fsSettings["RIGHT.width"];
+
+    if (K_l.empty() || K_r.empty() || P_l.empty() || P_r.empty() || R_l.empty() || R_r.empty() || D_l.empty() || D_r.empty() ||
+        rows_l == 0 || rows_r == 0 || cols_l == 0 || cols_r == 0)
+    {
+      cerr << "ERROR: Calibration parameters to rectify stereo are missing!" << endl;
+      return -1;
+    }
+
+    cv::initUndistortRectifyMap(K_l, D_l, R_l, P_l.rowRange(0, 3).colRange(0, 3), cv::Size(cols_l, rows_l), CV_32F, igb.M1l, igb.M2l);
+    cv::initUndistortRectifyMap(K_r, D_r, R_r, P_r.rowRange(0, 3).colRange(0, 3), cv::Size(cols_r, rows_r), CV_32F, igb.M1r, igb.M2r);
+  }
+
+  // Maximum delay, 5 seconds
+  ros::Subscriber sub_imu = n.subscribe("/imu", 1000, &ImuGrabber::GrabImu, &imugb);
+  ros::Subscriber sub_img_left = n.subscribe("/camera/left/image_raw", 100, &ImageGrabber::GrabImageLeft, &igb);
+  ros::Subscriber sub_img_right = n.subscribe("/camera/right/image_raw", 100, &ImageGrabber::GrabImageRight, &igb);
+
+  std::thread sync_thread(&ImageGrabber::SyncWithImu, &igb);
 
   ros::spin();
 
   return 0;
 }
-
-
 
 void ImageGrabber::GrabImageLeft(const sensor_msgs::ImageConstPtr &img_msg)
 {
@@ -177,12 +204,12 @@ cv::Mat ImageGrabber::GetImage(const sensor_msgs::ImageConstPtr &img_msg)
   {
     cv_ptr = cv_bridge::toCvShare(img_msg, sensor_msgs::image_encodings::MONO8);
   }
-  catch (cv_bridge::Exception& e)
+  catch (cv_bridge::Exception &e)
   {
     ROS_ERROR("cv_bridge exception: %s", e.what());
   }
-  
-  if(cv_ptr->image.type()==0)
+
+  if (cv_ptr->image.type() == 0)
   {
     return cv_ptr->image.clone();
   }
@@ -196,17 +223,17 @@ cv::Mat ImageGrabber::GetImage(const sensor_msgs::ImageConstPtr &img_msg)
 void ImageGrabber::SyncWithImu()
 {
   const double maxTimeDiff = 0.01;
-  while(1)
+  while (1)
   {
     cv::Mat imLeft, imRight;
     double tImLeft = 0, tImRight = 0;
-    if (!imgLeftBuf.empty()&&!imgRightBuf.empty()&&!mpImuGb->imuBuf.empty())
+    if (!imgLeftBuf.empty() && !imgRightBuf.empty() && !mpImuGb->imuBuf.empty())
     {
       tImLeft = imgLeftBuf.front()->header.stamp.toSec();
       tImRight = imgRightBuf.front()->header.stamp.toSec();
 
       this->mBufMutexRight.lock();
-      while((tImLeft-tImRight)>maxTimeDiff && imgRightBuf.size()>1)
+      while ((tImLeft - tImRight) > maxTimeDiff && imgRightBuf.size() > 1)
       {
         imgRightBuf.pop();
         tImRight = imgRightBuf.front()->header.stamp.toSec();
@@ -214,20 +241,20 @@ void ImageGrabber::SyncWithImu()
       this->mBufMutexRight.unlock();
 
       this->mBufMutexLeft.lock();
-      while((tImRight-tImLeft)>maxTimeDiff && imgLeftBuf.size()>1)
+      while ((tImRight - tImLeft) > maxTimeDiff && imgLeftBuf.size() > 1)
       {
         imgLeftBuf.pop();
         tImLeft = imgLeftBuf.front()->header.stamp.toSec();
       }
       this->mBufMutexLeft.unlock();
 
-      if((tImLeft-tImRight)>maxTimeDiff || (tImRight-tImLeft)>maxTimeDiff)
+      if ((tImLeft - tImRight) > maxTimeDiff || (tImRight - tImLeft) > maxTimeDiff)
       {
         // std::cout << "big time difference" << std::endl;
         continue;
       }
-      if(tImLeft>mpImuGb->imuBuf.back()->header.stamp.toSec())
-          continue;
+      if (tImLeft > mpImuGb->imuBuf.back()->header.stamp.toSec())
+        continue;
 
       this->mBufMutexLeft.lock();
       imLeft = GetImage(imgLeftBuf.front());
@@ -241,34 +268,88 @@ void ImageGrabber::SyncWithImu()
 
       vector<ORB_SLAM3::IMU::Point> vImuMeas;
       mpImuGb->mBufMutex.lock();
-      if(!mpImuGb->imuBuf.empty())
+      if (!mpImuGb->imuBuf.empty())
       {
         // Load imu measurements from buffer
         vImuMeas.clear();
-        while(!mpImuGb->imuBuf.empty() && mpImuGb->imuBuf.front()->header.stamp.toSec()<=tImLeft)
+        while (!mpImuGb->imuBuf.empty() && mpImuGb->imuBuf.front()->header.stamp.toSec() <= tImLeft)
         {
           double t = mpImuGb->imuBuf.front()->header.stamp.toSec();
           cv::Point3f acc(mpImuGb->imuBuf.front()->linear_acceleration.x, mpImuGb->imuBuf.front()->linear_acceleration.y, mpImuGb->imuBuf.front()->linear_acceleration.z);
           cv::Point3f gyr(mpImuGb->imuBuf.front()->angular_velocity.x, mpImuGb->imuBuf.front()->angular_velocity.y, mpImuGb->imuBuf.front()->angular_velocity.z);
-          vImuMeas.push_back(ORB_SLAM3::IMU::Point(acc,gyr,t));
+          vImuMeas.push_back(ORB_SLAM3::IMU::Point(acc, gyr, t));
           mpImuGb->imuBuf.pop();
         }
       }
       mpImuGb->mBufMutex.unlock();
-      if(mbClahe)
+      if (mbClahe)
       {
-        mClahe->apply(imLeft,imLeft);
-        mClahe->apply(imRight,imRight);
+        mClahe->apply(imLeft, imLeft);
+        mClahe->apply(imRight, imRight);
       }
 
-      if(do_rectify)
+      if (do_rectify)
       {
-        cv::remap(imLeft,imLeft,M1l,M2l,cv::INTER_LINEAR);
-        cv::remap(imRight,imRight,M1r,M2r,cv::INTER_LINEAR);
+        cv::remap(imLeft, imLeft, M1l, M2l, cv::INTER_LINEAR);
+        cv::remap(imRight, imRight, M1r, M2r, cv::INTER_LINEAR);
       }
 
-      mpSLAM->TrackStereo(imLeft,imRight,tImLeft,vImuMeas);
+      mpSLAM->TrackStereo(imLeft, imRight, tImLeft, vImuMeas);
 
+      //================================================================
+      {
+        /*-----------------------------------------------------------------
+  发布tf树，以及局部地图点(点云)
+-----------------------------------------------------------------*/
+        ORB_SLAM3::Tracking *myTracker = mpSLAM->Get_track();
+
+        // (1) 发布定位信息，tf树，主要是T^M_B B->M，T^B_P  P->B
+        cv::Mat cvTcw = cv::Mat::eye(4, 4, CV_32F);
+        cvTcw = myTracker->mCurrentFrame.mTcw.clone();
+
+        if (cvTcw.rows == 4 && cvTcw.cols == 4)
+        {
+          active_road_mapping::Transform_matrix Tcw;
+          Tcw.header.stamp = ros::Time::now();
+          Tcw.T00 = cvTcw.at<float>(0, 0);
+          Tcw.T01 = cvTcw.at<float>(0, 1);
+          Tcw.T02 = cvTcw.at<float>(0, 2);
+          Tcw.T10 = cvTcw.at<float>(1, 0);
+          Tcw.T11 = cvTcw.at<float>(1, 1);
+          Tcw.T12 = cvTcw.at<float>(1, 2);
+          Tcw.T20 = cvTcw.at<float>(2, 0);
+          Tcw.T21 = cvTcw.at<float>(2, 1);
+          Tcw.T22 = cvTcw.at<float>(2, 2);
+          Tcw.T03 = cvTcw.at<float>(0, 3);
+          Tcw.T13 = cvTcw.at<float>(1, 3);
+          Tcw.T23 = cvTcw.at<float>(2, 3);
+          tranform_Tcw_pub.publish(Tcw);
+
+          // (2) 发布点云
+          pcl::PointCloud<pcl::PointXYZ> localmap;
+          std::vector<ORB_SLAM3::MapPoint *> *LocalMapPoints;
+          LocalMapPoints = myTracker->Get_LocalMap();
+
+          for (int j = 0; j < LocalMapPoints->size(); j++)
+          {
+            pcl::PointXYZ pt_inf;
+            if ((*LocalMapPoints)[j] == nullptr)
+              continue;
+            if ((*LocalMapPoints)[j]->GetWorldPos().rows != 3 || (*LocalMapPoints)[j]->GetWorldPos().cols != 1)
+              continue;
+            pt_inf.x = (*LocalMapPoints)[j]->GetWorldPos().at<float>(0, 0);
+            pt_inf.y = (*LocalMapPoints)[j]->GetWorldPos().at<float>(1, 0);
+            pt_inf.z = (*LocalMapPoints)[j]->GetWorldPos().at<float>(2, 0);
+            localmap.points.push_back(pt_inf);
+          }
+
+          sensor_msgs::PointCloud2 localmap_ros;
+          pcl::toROSMsg(localmap, localmap_ros);
+          localmap_ros.header.frame_id = "world";
+          LocalaMapPub_.publish(localmap_ros);
+        }
+      }
+      //=================================================================
       std::chrono::milliseconds tSleep(1);
       std::this_thread::sleep_for(tSleep);
     }
@@ -282,5 +363,3 @@ void ImuGrabber::GrabImu(const sensor_msgs::ImuConstPtr &imu_msg)
   mBufMutex.unlock();
   return;
 }
-
-

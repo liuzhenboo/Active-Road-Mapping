@@ -649,6 +649,7 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/tf_generate_messages_cpp.dir/DependInfo.cmake"
   "CMakeFiles/actionlib_generate_messages_nodejs.dir/DependInfo.cmake"
   "CMakeFiles/pcl_msgs_generate_messages_lisp.dir/DependInfo.cmake"
+  "CMakeFiles/stereo_Inertial.dir/DependInfo.cmake"
   "CMakeFiles/nav_msgs_generate_messages_lisp.dir/DependInfo.cmake"
   "CMakeFiles/pcl_msgs_generate_messages_nodejs.dir/DependInfo.cmake"
   "CMakeFiles/actionlib_generate_messages_eus.dir/DependInfo.cmake"

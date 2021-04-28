@@ -93,7 +93,7 @@ void System::TransformTcw_callback(const active_road_mapping::Transform_matrix::
 		Attitude temp(Tcw->T00, Tcw->T01, Tcw->T02, Tcw->T03,
 					  Tcw->T10, Tcw->T11, Tcw->T12, Tcw->T13,
 					  Tcw->T20, Tcw->T21, Tcw->T22, Tcw->T23);
-		current_odom_Twc = temp; //.inverse();
+		current_odom_Twc = temp.inverse();
 		std::cout << "debug_current_odom_Twc:" << Tcw->T03 << " " << Tcw->T13 << " " << Tcw->T23 << std::endl;
 	}
 }
@@ -373,12 +373,12 @@ void System::Path_plan()
 	float roll, pitch, yaw;
 	pose_.getEulerAngles(roll, pitch, yaw);
 	pcl::PointCloud<pcl::PointXYZ> cloud_vis1;
-	sum = 3;
+	sum = 2;
 	for (int k = 0; k < sum; k++)
 	{
 		pcl::PointXYZ pt_inf;
-		pt_inf.x = x + r * std::cos(yaw + std::pow(-1, k) * M_PI * 5 / 12);
-		pt_inf.y = y + r * std::sin(yaw + std::pow(-1, k) * M_PI * 5 / 12);
+		pt_inf.x = x + r * std::cos(yaw + std::pow(-1, k) * M_PI * 5.0 / 12.0 + 0.5 * M_PI);
+		pt_inf.y = y + r * std::sin(yaw + std::pow(-1, k) * M_PI * 5.0 / 12.0 + 0.5 * M_PI);
 		pt_inf.z = z;
 		cloud_vis1.points.push_back(pt_inf);
 	}
@@ -395,8 +395,8 @@ void System::Path_plan()
 	std::vector<std::vector<Eigen::Vector3f>> waypoints(way_count);
 	for (size_t i = 0; i < way_count; i++)
 	{
-		float x_g = x + r * std::cos(yaw - M_PI * 1.0 / 3.0 + i * M_PI * 2.0 / (3.0 * way_count));
-		float y_g = y + r * std::sin(yaw - M_PI * 1.0 / 3.0 + i * M_PI * 2.0 / (3.0 * way_count));
+		float x_g = x + r * std::cos(yaw - M_PI * 1.0 / 3.0 + i * M_PI * 2.0 / (3.0 * (way_count - 1)) + 0.5 * M_PI);
+		float y_g = y + r * std::sin(yaw - M_PI * 1.0 / 3.0 + i * M_PI * 2.0 / (3.0 * (way_count - 1)) + 0.5 * M_PI);
 		float z_g = z;
 		Eigen::Vector3f goal(x_g, y_g, z_g);
 		Generate_waypoints(start, goal, waypoints[i]);
@@ -450,7 +450,7 @@ int System::SelectBestWay(std::vector<std::vector<Eigen::Vector3f>> &waypoints)
 		//local_mappoints;
 	}
 
-	return 2;
+	return 4;
 }
 
 void System::Generate_waypoints(Eigen::Vector3f start, Eigen::Vector3f goal, std::vector<Eigen::Vector3f> &onepath)

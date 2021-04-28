@@ -114,6 +114,7 @@
 /home/lzb/ros_ws/src/Active-Road-Mapping/build/CMakeFiles/tf_generate_messages_cpp.dir
 /home/lzb/ros_ws/src/Active-Road-Mapping/build/CMakeFiles/actionlib_generate_messages_nodejs.dir
 /home/lzb/ros_ws/src/Active-Road-Mapping/build/CMakeFiles/pcl_msgs_generate_messages_lisp.dir
+/home/lzb/ros_ws/src/Active-Road-Mapping/build/CMakeFiles/stereo_Inertial.dir
 /home/lzb/ros_ws/src/Active-Road-Mapping/build/CMakeFiles/nav_msgs_generate_messages_lisp.dir
 /home/lzb/ros_ws/src/Active-Road-Mapping/build/CMakeFiles/pcl_msgs_generate_messages_nodejs.dir
 /home/lzb/ros_ws/src/Active-Road-Mapping/build/CMakeFiles/actionlib_generate_messages_eus.dir
