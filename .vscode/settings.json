@@ -63,6 +63,7 @@
         "core": "cpp",
         "numericaldiff": "cpp",
         "mutex": "cpp",
-        "condition_variable": "cpp"
+        "condition_variable": "cpp",
+        "unordered_set": "cpp"
     }
 }

@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/lzb/ros_ws/src/Active-Road-Mapping/build/devel/setup.sh

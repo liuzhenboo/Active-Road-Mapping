@@ -35,6 +35,7 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /Global Options1
         - /Axes1
       Splitter Ratio: 0.5
     Tree Height: 804
@@ -61,7 +62,7 @@ Visualization Manager:
         Z: -1
       Plane: XY
       Plane Cell Count: 20
-      Reference Frame: t265_odom_frame
+      Reference Frame: world
       Value: true
     - Class: rviz/TF
       Enabled: true
@@ -190,7 +191,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.20000000298023224
       Style: Flat Squares
-      Topic: /mav_find_roads/raw_ground
+      Topic: /road_mapping/raw_ground
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -280,7 +281,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.15000000596046448
       Style: Squares
-      Topic: /mav_find_roads/global_ground
+      Topic: /road_mapping/global_ground
       Unreliable: false
       Use Fixed Frame: false
       Use rainbow: true
@@ -310,7 +311,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.15000000596046448
       Style: Spheres
-      Topic: /mav_find_roads/global_obstacles
+      Topic: /road_mapping/global_obstacles
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -472,7 +473,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.10000000149011612
       Style: Spheres
-      Topic: /mav_find_roads/circle
+      Topic: /road_mapping/circle
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -502,7 +503,7 @@ Visualization Manager:
       Size (Pixels): 30
       Size (m): 0.30000001192092896
       Style: Spheres
-      Topic: /mav_find_roads/frontpoint
+      Topic: /road_mapping/frontpoint
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -532,7 +533,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.10000000149011612
       Style: Points
-      Topic: /mav_find_roads/pointways
+      Topic: /road_mapping/pointways
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -562,7 +563,7 @@ Visualization Manager:
       Size (Pixels): 6
       Size (m): 0.20000000298023224
       Style: Points
-      Topic: /mav_find_roads/bestway
+      Topic: /road_mapping/bestway
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -626,7 +627,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.009999999776482582
       Style: Flat Squares
-      Topic: /Mono_Inertial/LocalaMap
+      Topic: /mono_Inertial/LocalaMap
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -635,7 +636,7 @@ Visualization Manager:
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: t265_odom_frame
+    Fixed Frame: world
     Frame Rate: 30
   Name: root
   Tools:

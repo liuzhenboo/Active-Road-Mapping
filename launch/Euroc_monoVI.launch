@@ -1,0 +1,9 @@
+
+<launch>  
+		<node pkg="active_road_mapping" type="mono_Inertial" name="mono_Inertial" args ="/home/lzb/ros_ws/src/Active-Road-Mapping/SDK/ORB_SLAM3-0.3-beta_SDK/Vocabulary/ORBvoc.txt /home/lzb/ros_ws/src/Active-Road-Mapping/SDK/ORB_SLAM3-0.3-beta_SDK/Examples/Monocular-Inertial/EuRoC.yaml" output="screen" launch-prefix="xterm -e gdb -ex run --args ">
+    	     <remap from="/camera/image_raw" to="/cam0/image_raw"/>
+		    <remap from="/camera/right/image_raw" to="/cam1/image_raw"/>
+			    	     <remap from="/imu" to="/imu0"/>
+
+  		</node>
+</launch>

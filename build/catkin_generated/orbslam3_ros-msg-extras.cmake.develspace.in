@@ -1,0 +1,2 @@
+set(orbslam3_ros_MESSAGE_FILES "/home/lzb/ros_ws/src/Active-Road-Mapping/msg/Transform_matrix.msg")
+set(orbslam3_ros_SERVICE_FILES "")

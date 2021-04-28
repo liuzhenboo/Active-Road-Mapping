@@ -1,0 +1,8 @@
+
+<launch>  
+		<node pkg="ORB_SLAM3" type="Stereo" name="Stereo" args ="/media/lzb/Windows-SSD/ubuntu18/ORB_SLAM3-master/Vocabulary/ORBvoc.txt /media/lzb/Windows-SSD/ubuntu18/ORB_SLAM3-master/Examples/Stereo/EuRoC.yaml  true" output="screen">
+    	     <remap from="/camera/left/image_raw" to="/cam0/image_raw"/>
+		    <remap from="/camera/right/image_raw" to="/cam1/image_raw"/>
+
+  		</node>
+</launch>

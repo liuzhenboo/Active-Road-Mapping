@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+# generated from catkin/python/catkin/environment_cache.py
+
+# based on a snapshot of the environment before and after calling the setup script
+# it emulates the modifications of the setup script without recurring computations
+
+# new environment variables
+
+# modified environment variables
+export CMAKE_PREFIX_PATH="/home/lzb/ros_ws/src/Active-Road-Mapping/build/devel:$CMAKE_PREFIX_PATH"
+export LD_LIBRARY_PATH="/home/lzb/ros_ws/src/Active-Road-Mapping/build/devel/lib:$LD_LIBRARY_PATH"
+export PATH="/opt/ros/melodic/bin:/home/lzb/.local/bin:/home/lzb/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/local/cuda/bin"
+export PKG_CONFIG_PATH="/home/lzb/ros_ws/src/Active-Road-Mapping/build/devel/lib/pkgconfig:$PKG_CONFIG_PATH"
+export PWD="/home/lzb/ros_ws/src/Active-Road-Mapping/build"
+export PYTHONPATH="/home/lzb/ros_ws/src/Active-Road-Mapping/build/devel/lib/python2.7/dist-packages:$PYTHONPATH"
+export ROSLISP_PACKAGE_DIRECTORIES="/home/lzb/ros_ws/src/Active-Road-Mapping/build/devel/share/common-lisp:$ROSLISP_PACKAGE_DIRECTORIES"
+export ROS_PACKAGE_PATH="/home/lzb/ros_ws/src/Active-Road-Mapping:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/navigation/move_base:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/navigation/rotate_recovery:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/navigation/global_planner:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/navigation/navfn:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/navigation/move_slow_and_clear:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/navigation/dwa_local_planner:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/navigation/clear_costmap_recovery:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/navigation/carrot_planner:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/navigation/base_local_planner:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/navigation/nav_core:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/navigation/costmap_2d:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/navigation/voxel_grid:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/geometry2/tf2_tools:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/geometry2/tf2_sensor_msgs:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/geometry2/test_tf2:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/geometry2/tf2_kdl:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/navigation/fake_localization:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/geometry2/tf2_geometry_msgs:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/geometry2/tf2_ros:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/geometry2/tf2_py:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/geometry2/tf2_eigen:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/geometry2/tf2_bullet:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/navigation/map_server:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/geometry2/tf2:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/geometry2/tf2_msgs:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/navigation/robot_pose_ekf:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/navigation/navigation:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/navigation_msgs/move_base_msgs:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/navigation_msgs/map_msgs:/media/lzb/Windows-SSD/ubuntu18/Navigation_WS/src/geometry2/geometry2:/home/lzb/Realsense/ros_ws/src:/home/lzb/ros_projects/ZED_ROS_Wapper/src:/opt/ros/melodic/share"
